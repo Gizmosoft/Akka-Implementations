@@ -6,8 +6,6 @@ import edu.northeastern.models.DateResponse;
 import edu.northeastern.models.ForwardEmail;
 import edu.northeastern.models.ReminderMessage;
 
-import java.time.LocalDate;
-
 public class ProcessorActor extends AbstractActor {
 
     @Override

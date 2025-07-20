@@ -56,7 +56,7 @@ class ProcessorActorTest {
             ActorRef processor = system.actorOf(Props.create(ProcessorActor.class));
             
             // Send the message using the probe as sender
-            processor.tell(new ReminderMessage("run 5km"), senderProbe.ref());
+            processor.tell(new ReminderMessage("Go for a run!"), senderProbe.ref());
         }};
     }
 
