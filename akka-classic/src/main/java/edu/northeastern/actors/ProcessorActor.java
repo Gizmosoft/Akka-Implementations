@@ -18,7 +18,7 @@ public class ProcessorActor extends AbstractActor {
                 })
                 .match(DateRequest.class, msg -> {
                     System.out.println("[PROCESSOR] Date requested via ASK");
-                    getSender().tell(new DateResponse("Today's date is: " + LocalDate.now()), getSelf());
+                    getSender().tell(new DateResponse(), getSelf());
                 })
                 .match(ForwardEmail.class, msg -> {
                     System.out.println("[PROCESSOR] Forwarding Email to: " + msg.getRecipient() + " from " + getSender());

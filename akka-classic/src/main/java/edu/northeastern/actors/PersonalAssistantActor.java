@@ -2,7 +2,11 @@ package edu.northeastern.actors;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.pattern.Patterns;
 import edu.northeastern.models.*;
+
+import java.time.Duration;
+import java.util.concurrent.CompletionStage;
 
 public class PersonalAssistantActor extends AbstractActor {
     private final ActorRef processor;
@@ -20,15 +24,19 @@ public class PersonalAssistantActor extends AbstractActor {
                 })
                 .match(AskDateCommand.class, msg -> {
                     System.out.println("[PERSONAL ASSISTANT] sending ASK request...");
-                    processor.tell(new DateRequest(), getSelf());
+                    CompletionStage<Object> future = Patterns.ask(processor, new DateRequest(), Duration.ofMillis(2000));
+                    future.thenAccept(response -> {
+                        System.out.println("[PERSONAL ASSISTANT] Received response: " + response);
+                    });
+//                    processor.tell(new DateRequest(), getSelf());
                 })
                 .match(ForwardCommand.class, msg -> {
                     System.out.println("[PERSONAL ASSISTANT] sending FORWARD request...");
                     processor.forward(new ForwardEmail("team@office.com"), getContext());
                 })
-                .match(DateResponse.class, response -> {
-                    System.out.println("[PERSONAL ASSISTANT] Received response: " + response.getDate());
-                })
+//                .match(DateResponse.class, response -> {
+//                    System.out.println("[PERSONAL ASSISTANT] Received response: " + response.getDate());
+//                })
                 .build();
     }
 }

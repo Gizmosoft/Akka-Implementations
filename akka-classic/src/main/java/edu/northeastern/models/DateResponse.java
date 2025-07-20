@@ -1,10 +1,12 @@
 package edu.northeastern.models;
 
+import java.time.LocalDate;
+
 public class DateResponse {
     private final String date;
 
-    public DateResponse(String date) {
-        this.date = date;
+    public DateResponse() {
+        this.date = LocalDate.now().toString();
     }
 
     public String getDate() {
@@ -13,6 +15,6 @@ public class DateResponse {
 
     @Override
     public String toString() {
-        return "DateResponse{date='" + date + "'}";
+        return "Today's date is " + getDate();
     }
 } 

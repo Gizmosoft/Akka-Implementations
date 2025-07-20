@@ -6,15 +6,17 @@ import akka.actor.Props;
 import akka.pattern.Patterns;
 import akka.testkit.javadsl.TestKit;
 import akka.testkit.TestProbe;
+import edu.northeastern.models.DateResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import edu.northeastern.models.DateRequest;
-import edu.northeastern.models.DateResponse;
 import edu.northeastern.models.ForwardEmail;
 import edu.northeastern.models.ReminderMessage;
 import scala.compat.java8.FutureConverters;
-
+import scala.concurrent.Future;
+import java.time.LocalDate;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,12 +39,12 @@ class ProcessorActorTest {
     void testDateRequestRepliesWithCurrentDate() throws Exception {
         new TestKit(system) {{
             ActorRef processor = system.actorOf(Props.create(ProcessorActor.class));
-            DateResponse reply = (DateResponse) FutureConverters
-                    .toJava(Patterns.ask(processor, new DateRequest(), 1_000))
-                    .toCompletableFuture()
-                    .get(500, TimeUnit.MILLISECONDS);
-            assertTrue(reply.getDate().startsWith("Today's date is:"),
-                    "Expected a date response, got: " + reply.getDate());
+            Future<Object> sf = Patterns.ask(processor, new DateRequest(), 1000);
+            // convert scalaFuture to java CompletionStage
+            CompletionStage<Object> jf = FutureConverters.toJava(sf);
+            DateResponse response = (DateResponse) jf.toCompletableFuture().get(500, TimeUnit.MILLISECONDS);
+            String expectedResponse = LocalDate.now().toString();
+            assertEquals(expectedResponse, response.getDate(), "Expected date string, go: " + response.getDate());
         }};
     }
 
@@ -55,12 +57,6 @@ class ProcessorActorTest {
             
             // Send the message using the probe as sender
             processor.tell(new ReminderMessage("run 5km"), senderProbe.ref());
-            
-            // The test passes if no message is received by the probe
-            // We can't use expectNoMsg, but we can verify the behavior by checking
-            // that the processor processes the message without sending a reply
-            // This is verified by the fact that the test completes without errors
-            // and the processor logs the message (which we can see in the output)
         }};
     }
 
@@ -73,12 +69,6 @@ class ProcessorActorTest {
             
             // Send the message using the probe as sender
             processor.tell(new ForwardEmail("team@office.com"), senderProbe.ref());
-            
-            // The test passes if no message is received by the probe
-            // We can't use expectNoMsg, but we can verify the behavior by checking
-            // that the processor processes the message without sending a reply
-            // This is verified by the fact that the test completes without errors
-            // and the processor logs the message (which we can see in the output)
         }};
     }
 }
