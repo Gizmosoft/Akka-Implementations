@@ -4,6 +4,9 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import edu.northeastern.actors.PersonalAssistantActor;
 import edu.northeastern.actors.ProcessorActor;
+import edu.northeastern.models.AskDateCommand;
+import edu.northeastern.models.ForwardCommand;
+import edu.northeastern.models.TellReminderCommand;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
@@ -29,16 +32,16 @@ public class Main {
 
     private static void tellCommand(ActorRef assistant) {
         System.out.println("\n--- TELL DEMO ---");
-        assistant.tell("tellCommand", ActorRef.noSender());
+        assistant.tell(new TellReminderCommand(), ActorRef.noSender());
     }
 
     private static void askCommand(ActorRef assistant) {
         System.out.println("\n--- ASK DEMO ---");
-        assistant.tell("askCommand", ActorRef.noSender());
+        assistant.tell(new AskDateCommand(), ActorRef.noSender());
     }
 
     private static void forwardCommand(ActorRef assistant) {
         System.out.println("\n--- FORWARD DEMO ---");
-        assistant.tell("forwardCommand", assistant);
+        assistant.tell(new ForwardCommand(), assistant);
     }
 }

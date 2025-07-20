@@ -1,6 +1,11 @@
 package edu.northeastern.actors;
 
 import akka.actor.AbstractActor;
+import edu.northeastern.models.DateRequest;
+import edu.northeastern.models.DateResponse;
+import edu.northeastern.models.ForwardEmail;
+import edu.northeastern.models.ReminderMessage;
+
 import java.time.LocalDate;
 
 public class ProcessorActor extends AbstractActor {
@@ -8,16 +13,15 @@ public class ProcessorActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            // TELL
-                .matchEquals("Remind me to go for a run", msg -> {
-                    System.out.println("[PROCESSOR] Reminder received via TELL: " + msg);
+                .match(ReminderMessage.class, msg -> {
+                    System.out.println("[PROCESSOR] Reminder received via TELL: " + msg.getMessage());
                 })
-                .matchEquals("What's the date today?", msg -> {
+                .match(DateRequest.class, msg -> {
                     System.out.println("[PROCESSOR] Date requested via ASK");
-                    getSender().tell("Today's date is: " + LocalDate.now(), getSelf());
+                    getSender().tell(new DateResponse("Today's date is: " + LocalDate.now()), getSelf());
                 })
-                .matchEquals("Forward Email to Office", msg -> {
-                    System.out.println("[PROCESSOR] '" + msg + "' request received from " + getSender() + " and has been completed");
+                .match(ForwardEmail.class, msg -> {
+                    System.out.println("[PROCESSOR] Forwarding Email to: " + msg.getRecipient() + " from " + getSender());
                 })
                 .matchAny(msg -> {
                     System.out.println("[PROCESSOR] Unknown message: " + msg);
